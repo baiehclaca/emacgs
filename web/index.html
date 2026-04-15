@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>Laplace Transformer</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Laplace <span>Transformer</span></h1>
+      <p class="sub">Lightweight pattern-matching AI</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Pattern match</h2>
+      <p class="hint">
+        Score every position in the <em>haystack</em> by how strongly
+        the <em>needle</em> attends to it through the Laplace kernel.
+      </p>
+      <label>
+        Haystack
+        <textarea id="haystack" rows="3" autocomplete="off" spellcheck="false"
+                  placeholder="xxxabcdefxxxabcabc"></textarea>
+      </label>
+      <label>
+        Needle
+        <input id="needle" type="text" autocomplete="off" spellcheck="false"
+               placeholder="abc" />
+      </label>
+      <button id="matchBtn" class="primary">Find pattern</button>
+      <div id="matchResult" class="result" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h2>2. In-context copy</h2>
+      <p class="hint">
+        A tiny model was trained on startup to copy any pattern after
+        <code>|</code>. Type a short string of letters/digits (up to 8 chars):
+      </p>
+      <label>
+        Pattern
+        <input id="pattern" type="text" maxlength="8" autocomplete="off"
+               spellcheck="false" placeholder="pat1337" />
+      </label>
+      <button id="copyBtn" class="primary">Copy it</button>
+      <div id="copyResult" class="result" aria-live="polite"></div>
+    </section>
+
+    <footer>
+      <small>
+        Laplace-kernel attention · Laplacian spectral PE · stdlib backend
+      </small>
+    </footer>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

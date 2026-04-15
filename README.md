@@ -106,6 +106,26 @@ chosen attention layer, and reads off how much probability mass the needle
 tokens put on each haystack position. Because Laplace-kernel attention is
 sharp, these scores localise well even before training.
 
+## Web demo (try it on your phone)
+
+A zero-dependency web demo ships in `web/`. It trains a tiny copy-task
+model on startup (~10 seconds on CPU) and serves two endpoints backed by
+Python's stdlib `http.server`:
+
+- `POST /api/match` — returns per-position Laplace-attention scores for
+  a `{ haystack, needle }` pair.
+- `POST /api/copy` — asks the trained model to copy any short pattern.
+
+Run it:
+
+```bash
+python web/server.py --port 8000
+```
+
+The server binds to `0.0.0.0` and prints candidate URLs on startup,
+including a LAN URL like `http://192.168.x.y:8000/`. Open that URL on
+your phone (same Wi-Fi network) to try it on-device.
+
 ## Files
 
 ```
@@ -117,6 +137,11 @@ laplace_transformer/
 examples/
 ├── pattern_matching.py  # induction-heads / copy-task demo
 └── train.py             # minimal char-LM training loop
+web/
+├── server.py            # stdlib HTTP server (match + copy APIs)
+├── index.html           # mobile-first UI
+├── style.css            # dark, touch-friendly styles
+└── app.js               # small vanilla-JS frontend
 tests/
 └── test_laplace_transformer.py
 ```
