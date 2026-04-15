@@ -1,0 +1,51 @@
+name: Deploy static demo to GitHub Pages
+
+# Deploys the `docs/` folder as a static site. After this workflow runs
+# once successfully you can visit:
+#
+#     https://<owner>.github.io/<repo>/
+#
+# No repository-settings toggle is required — the workflow uses the
+# `actions/deploy-pages` action, which provisions Pages on first run.
+# (The repo must have Pages source set to "GitHub Actions" in Settings →
+#  Pages. If it isn't, the first run will tell you exactly what to click.)
+
+on:
+  push:
+    branches:
+      - main
+      - claude/laplace-transformer-ai-1c0Yk
+    paths:
+      - "docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

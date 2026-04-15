@@ -106,25 +106,47 @@ chosen attention layer, and reads off how much probability mass the needle
 tokens put on each haystack position. Because Laplace-kernel attention is
 sharp, these scores localise well even before training.
 
-## Web demo (try it on your phone)
+## Hosted demo (zero install)
 
-A zero-dependency web demo ships in `web/`. It trains a tiny copy-task
-model on startup (~10 seconds on CPU) and serves two endpoints backed by
-Python's stdlib `http.server`:
+A **pure-browser** version of the demo lives in `docs/` — the Laplace-kernel
+attention, induction-head continuation, and attention heatmap are all
+reimplemented in ~200 lines of vanilla JavaScript. No backend, no PyTorch,
+no npm build. It runs on your phone.
 
-- `POST /api/match` — returns per-position Laplace-attention scores for
-  a `{ haystack, needle }` pair.
-- `POST /api/copy` — asks the trained model to copy any short pattern.
+### Option A — GitHub Pages (recommended, 1 click)
 
-Run it:
+A workflow under `.github/workflows/pages.yml` auto-deploys `docs/` on
+every push. To turn it on:
+
+1. In the GitHub repo → **Settings → Pages**
+2. Under **Source**, choose **"GitHub Actions"**.
+3. Push any change to `docs/` (or re-run the workflow manually from the
+   Actions tab). Your site will be live at:
+
+   ```
+   https://<your-github-username>.github.io/<repo-name>/
+   ```
+
+### Option B — Vercel (also 1 click)
+
+A `vercel.json` is included that serves `docs/` as a static site.
+
+1. Go to [vercel.com/new](https://vercel.com/new), import this repo.
+2. Accept the defaults (Vercel reads `vercel.json`) and click **Deploy**.
+3. Your site is live at `https://<project>.vercel.app/`.
+
+### Option C — run the Python backend locally
+
+A Python-backend version with a small trained copy-task model lives
+in `web/`. It uses stdlib only (no Flask / FastAPI) and binds to
+`0.0.0.0` so your phone can hit it over Wi-Fi:
 
 ```bash
 python web/server.py --port 8000
 ```
 
-The server binds to `0.0.0.0` and prints candidate URLs on startup,
-including a LAN URL like `http://192.168.x.y:8000/`. Open that URL on
-your phone (same Wi-Fi network) to try it on-device.
+The server prints LAN URLs like `http://192.168.x.y:8000/` on startup —
+open one on your phone.
 
 ## Files
 
@@ -137,13 +159,22 @@ laplace_transformer/
 examples/
 ├── pattern_matching.py  # induction-heads / copy-task demo
 └── train.py             # minimal char-LM training loop
-web/
-├── server.py            # stdlib HTTP server (match + copy APIs)
-├── index.html           # mobile-first UI
-├── style.css            # dark, touch-friendly styles
-└── app.js               # small vanilla-JS frontend
+web/                     # Python-backed demo (PyTorch inference)
+├── server.py            #   stdlib HTTP server (match + copy APIs)
+├── index.html
+├── style.css
+└── app.js
+docs/                    # Static browser demo (pure JS, zero backend)
+├── index.html           #   mobile-first UI
+├── style.css            #   dark, touch-friendly styles
+├── laplace.js           #   Laplace-kernel attention in plain JS
+├── laplace.test.js      #   Node smoke tests for the JS math
+└── app.js               #   UI glue
 tests/
 └── test_laplace_transformer.py
+vercel.json              # Vercel config (static deploy of docs/)
+.github/workflows/
+└── pages.yml            # GitHub Pages auto-deploy of docs/
 ```
 
 ## Tests
