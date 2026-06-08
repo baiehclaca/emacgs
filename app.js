@@ -636,12 +636,15 @@ async function search(reset) {
     }
   } catch (err) {
     setLoading(false);
+    const msg = String(err.message || '');
     if (err.status === 429) {
-      showErr('Reddit is rate-limiting requests. Wait a moment and try again.');
-    } else if (String(err.message || '').toLowerCase().includes('fetch')) {
-      showErr('Could not reach Reddit. Check your internet connection.');
+      showErr('Reddit is rate-limiting requests. Wait a minute and try again.');
+    } else if (err.status === 403) {
+      showErr('Reddit blocked this request (403 Forbidden). Try opening reddit.com in a new tab to clear any challenge, then search again.');
+    } else if (err.status === 0 || msg.includes('connect') || msg.includes('internet')) {
+      showErr(msg || 'Could not reach Reddit. Check your internet connection and try again.');
     } else {
-      showErr(err.message || 'Unexpected error.');
+      showErr(msg || 'Unexpected error — please try again.');
     }
   }
 }
