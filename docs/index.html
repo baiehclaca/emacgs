@@ -1,87 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0d12" />
-  <meta name="description" content="A lightweight Laplace-kernel transformer for pattern matching, running entirely in your browser." />
-  <title>Laplace Transformer</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RedditSearch &mdash; Find anything on Reddit</title>
+  <meta name="description" content="Search Reddit like Google. Find answers, discussions, and community wisdom with knowledge panels.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='10' fill='%23FF4500'/%3E%3Cpath d='M16.67 10a1.46 1.46 0 00-2.47-1a7.12 7.12 0 00-3.85-1.23l.65-3.08 2.13.45a1 1 0 101-1 1 1 0 00-.96.68l-2.38-.5a.18.18 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.67-1.52zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.6 2.71a3.58 3.58 0 01-2.87.57 3.58 3.58 0 01-2.87-.57.28.28 0 01.39-.39 3 3 0 002.48.46 3 3 0 002.48-.46.28.28 0 01.39.39zm-.23-1.71a1 1 0 111-1 1 1 0 01-1 1z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Laplace <span>Transformer</span></h1>
-      <p class="sub">Pattern-matching AI, running in your browser</p>
-    </header>
 
-    <section class="card">
-      <h2>1. Pattern match</h2>
-      <p class="hint">
-        Score every position in the <em>haystack</em> by how strongly
-        the <em>needle</em> attends to it through the Laplace kernel
-        <code>exp(-‖q&#8722;k‖₁ / b)</code>.
-      </p>
-      <label>
-        Haystack
-        <textarea id="haystack" rows="3" autocomplete="off" spellcheck="false"
-                  placeholder="xxxabcdefxxxabcabc"></textarea>
-      </label>
-      <label>
-        Needle
-        <input id="needle" type="text" autocomplete="off" spellcheck="false"
-               placeholder="abc" />
-      </label>
-      <label class="slider-label">
-        Bandwidth <code>b</code> = <span id="bwVal">0.50</span>
-        <input id="bw" type="range" min="0.05" max="3" step="0.05" value="0.5" />
-        <small>smaller = sharper / sparser attention</small>
-      </label>
-      <button id="matchBtn" class="primary">Find pattern</button>
-      <div id="matchResult" class="result" aria-live="polite"></div>
-    </section>
+<!-- ══ HOME VIEW ══ -->
+<div id="home-view">
+  <div class="home-center">
 
-    <section class="card">
-      <h2>2. Induction-head continuation</h2>
-      <p class="hint">
-        Classic induction-head algorithm: look at the tail of the input,
-        find its strongest 2-gram match earlier in the context via the
-        Laplace kernel, and copy what came next. Works great on
-        repeating patterns &mdash; try <code>abcabcabc</code>.
-      </p>
-      <label>
-        Context
-        <input id="context" type="text" autocomplete="off" spellcheck="false"
-               placeholder="abcabcabc" />
-      </label>
-      <label class="slider-label">
-        Tokens to emit = <span id="nVal">8</span>
-        <input id="numTokens" type="range" min="1" max="32" step="1" value="8" />
-      </label>
-      <button id="contBtn" class="primary">Continue</button>
-      <div id="contResult" class="result" aria-live="polite"></div>
-    </section>
+    <div class="home-logo">
+      <svg class="snoo-lg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="10" fill="#FF4500"/>
+        <path d="M16.67 10a1.46 1.46 0 00-2.47-1a7.12 7.12 0 00-3.85-1.23l.65-3.08 2.13.45a1 1 0 101-1 1 1 0 00-.96.68l-2.38-.5a.18.18 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.67-1.52zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.6 2.71a3.58 3.58 0 01-2.87.57 3.58 3.58 0 01-2.87-.57.28.28 0 01.39-.39 3 3 0 002.48.46 3 3 0 002.48-.46.28.28 0 01.39.39zm-.23-1.71a1 1 0 111-1 1 1 0 01-1 1z" fill="white"/>
+      </svg>
+      <div class="home-logo-text">
+        <span class="logo-reddit">Reddit</span><span class="logo-search">Search</span>
+      </div>
+    </div>
 
-    <section class="card">
-      <h2>3. Attention heatmap</h2>
-      <p class="hint">
-        Full T<sub>n</sub> &times; T<sub>h</sub> Laplace-attention map:
-        rows are needle positions, columns are haystack positions.
-        Brighter = stronger match.
-      </p>
-      <div id="heatmap" class="heatmap"></div>
-    </section>
+    <p class="home-tagline">Search the front page of the internet</p>
 
-    <footer>
-      <small>
-        Laplace-kernel attention &middot; one-hot embeddings &middot; zero backend
-        &middot; <a href="https://github.com/baiehclaca/emacgs">source</a>
-      </small>
-    </footer>
+    <form id="home-form" class="home-form">
+      <div class="home-box">
+        <svg class="box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="home-input" type="text" placeholder="Search Reddit&hellip;" autocomplete="off" spellcheck="false" aria-label="Search Reddit">
+        <button type="submit" class="home-submit">Search</button>
+      </div>
+    </form>
+
+    <div class="trending">
+      <span class="trending-label">Try:</span>
+      <button class="chip" data-q="how to learn programming">learn programming</button>
+      <button class="chip" data-q="best budget PC build 2024">PC builds</button>
+      <button class="chip" data-q="travel tips Europe backpacking">travel tips</button>
+      <button class="chip" data-q="easy recipes for beginners cooking">cooking</button>
+      <button class="chip" data-q="best movies to watch 2024">movies</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RESULTS VIEW ══ -->
+<div id="results-view" class="hidden">
+
+  <header class="r-header">
+    <div class="r-header-top">
+      <button id="logo-btn" class="r-logo" aria-label="Home">
+        <svg class="snoo-sm" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="10" cy="10" r="10" fill="#FF4500"/>
+          <path d="M16.67 10a1.46 1.46 0 00-2.47-1a7.12 7.12 0 00-3.85-1.23l.65-3.08 2.13.45a1 1 0 101-1 1 1 0 00-.96.68l-2.38-.5a.18.18 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.67-1.52zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.6 2.71a3.58 3.58 0 01-2.87.57 3.58 3.58 0 01-2.87-.57.28.28 0 01.39-.39 3 3 0 002.48.46 3 3 0 002.48-.46.28.28 0 01.39.39zm-.23-1.71a1 1 0 111-1 1 1 0 01-1 1z" fill="white"/>
+        </svg>
+        <span class="r-logo-text">Reddit<span>Search</span></span>
+      </button>
+
+      <form id="results-form" class="r-search-form" role="search">
+        <div class="r-box">
+          <svg class="box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input id="results-input" type="text" autocomplete="off" spellcheck="false" aria-label="Search Reddit">
+          <button type="submit" class="r-submit" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <nav class="filter-bar" aria-label="Filters">
+      <div class="filter-group">
+        <button class="filter-pill active" data-filter="sort" data-value="relevance">Relevance</button>
+        <button class="filter-pill" data-filter="sort" data-value="hot">Hot</button>
+        <button class="filter-pill" data-filter="sort" data-value="top">Top</button>
+        <button class="filter-pill" data-filter="sort" data-value="new">New</button>
+      </div>
+      <div class="filter-sep"></div>
+      <div class="filter-group">
+        <button class="filter-pill active" data-filter="time" data-value="all">All time</button>
+        <button class="filter-pill" data-filter="time" data-value="year">Year</button>
+        <button class="filter-pill" data-filter="time" data-value="month">Month</button>
+        <button class="filter-pill" data-filter="time" data-value="week">Week</button>
+        <button class="filter-pill" data-filter="time" data-value="day">Today</button>
+      </div>
+      <div class="filter-sep"></div>
+      <div class="filter-group subreddit-group">
+        <span class="sub-prefix">r/</span>
+        <input id="subreddit-input" type="text" placeholder="subreddit" class="sub-input" autocomplete="off" aria-label="Filter by subreddit">
+      </div>
+    </nav>
+  </header>
+
+  <main class="r-main">
+    <div id="stats-bar" class="stats-bar"></div>
+    <div id="knowledge-panel" class="knowledge-panel hidden"></div>
+    <div id="results-list" class="results-list"></div>
+
+    <div id="loading-state" class="loading-state hidden">
+      <div class="spinner"></div>
+      <p>Searching Reddit&hellip;</p>
+    </div>
+
+    <div id="error-state" class="error-state hidden"></div>
+
+    <div id="no-results" class="no-results hidden">
+      <div class="state-icon">&#128269;</div>
+      <h3>No results found</h3>
+      <p>Try different keywords or remove the subreddit filter</p>
+    </div>
+
+    <div id="load-more-wrap" class="load-more-wrap hidden">
+      <button id="load-more-btn" class="load-more-btn">Load more results</button>
+    </div>
   </main>
 
-  <script src="laplace.js"></script>
-  <script src="app.js"></script>
+</div>
+
+<script src="reddit-api.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
