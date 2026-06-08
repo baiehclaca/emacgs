@@ -370,13 +370,15 @@ input  { font-family: inherit; }
    ══════════════════════════════════════════════════ */
 
 .knowledge-panel {
+  --k-accent: #FF4500; /* overridden per-intent by JS */
   background: var(--bg);
   border: 1.5px solid var(--border);
-  border-left: 4px solid var(--orange);
+  border-left: 4px solid var(--k-accent);
   border-radius: var(--radius);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow);
+  transition: border-left-color .3s ease;
 }
 
 /* Subreddit badge in panel */
@@ -419,8 +421,8 @@ input  { font-family: inherit; }
 .k-sub-name    { font-size: 0.9rem; font-weight: 700; }
 .k-sub-members { font-size: 0.75rem; opacity: .7; }
 
-.k-tag {
-  background: var(--orange);
+.k-intent-tag, .k-tag {
+  background: var(--k-accent, var(--orange));
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -439,6 +441,38 @@ input  { font-family: inherit; }
   margin-bottom: 0.75rem;
 }
 
+/* Post reference line (title + score/age) */
+.k-post-ref {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.k-post-ref a {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.k-post-ref a:hover { color: var(--k-accent, var(--orange)); }
+
+.k-post-stats {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.k-answer-sep { color: var(--text-3); font-size: 0.75rem; }
+.k-comment-age { font-size: 0.75rem; color: var(--text-3); margin-left: auto; }
+.k-comment-awards { font-size: 0.75rem; color: var(--text-2); }
+
+/* Legacy — keep in case still used */
 .k-post-title {
   font-size: 0.875rem;
   font-weight: 600;
